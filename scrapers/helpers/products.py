@@ -718,9 +718,9 @@ class ProductScraper(Scraper):
 
         # api_url = {os.getenv("BACKEND_URL")} + "/api/v1/talent/products/"
         # api_url = {os.getenv("BACKEND_URL")} + "/api/v1/talent/products/"
-        # api_url = "http://localhost:8000/api/v1/talent/products/"
+        # api_url = "http://35.232.23.77:8000/api/v1/talent/products/"
         api_url = os.getenv("BACKEND_URL") + "/api/v1/talent/products/"
-        # api_url_retrieve = "http://localhost:8000/api/v1/talent/companies/by-linkedin-username/" + \
+        # api_url_retrieve = "http://35.232.23.77:8000/api/v1/talent/companies/by-linkedin-username/" + \
             # linkedin_username + "/"
         api_url_retrieve = os.getenv("BACKEND_URL") + \
             "/api/v1/talent/companies/by-linkedin-username/" + linkedin_username + "/"

@@ -11,7 +11,7 @@ load_dotenv(env)
 
 def get_companies_that_have_twitter():
     api_url = os.getenv("BACKEND_URL") + "/api/v1/talent/companies/"
-    # api_url = "http://localhost:8000/api/v1/talent/companies/"
+    # api_url = "http://35.232.23.77:8000/api/v1/talent/companies/"
     response = requests.get(api_url)
     companies_list = []
     if response.status_code == 200:

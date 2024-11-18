@@ -84,7 +84,7 @@ def update_company(company_id, data):
 
 
 def get_companies_that_have_twitter():
-    api_url = "http://localhost:8000/api/v1/talent/companies/"
+    api_url = "http://35.232.23.77:8000/api/v1/talent/companies/"
     response = requests.get(api_url)
     companies_list = []
     if response.status_code == 200:
@@ -131,7 +131,7 @@ def fetch_tweets_for_companies():
 
 def save_tweets(tweets, company):
 
-    # api_url = f"http://localhost:8000/api/v1/talent/tweets/create-from-json/{company}/"
+    # api_url = f"http://35.232.23.77:8000/api/v1/talent/tweets/create-from-json/{company}/"
     api_url = os.getenv("BACKEND_URL") + \
         f"/api/v1/talent/tweets/create-from-json/{company}/"
     response = requests.post(api_url, json=tweets)
