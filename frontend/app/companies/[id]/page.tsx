@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     `http://localhost:3000/api/getSingleCompany?id=${params.id}` , {
 
       next : {revalidate: 1800}
-    }
+    } 
   );
   let company: Company = await data.json();
 
