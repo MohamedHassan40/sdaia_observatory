@@ -1,13 +1,12 @@
 {
-    "version": 2,
-    "rewrites": [
-      {
-        "source": "/(.*)",
-        "destination": "/"
-      }
-    ],
-    "env": {
-      "NEXT_PUBLIC_API_URL": "https://your-api-url.com"
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://your-api-url.com"
   }
-  
+}
