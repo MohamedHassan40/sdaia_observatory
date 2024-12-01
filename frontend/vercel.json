@@ -6,14 +6,10 @@
         "use": "@vercel/next"
       }
     ],
-    "rewrites": [
-      {
-        "source": "/dashboard",
-        "destination": "/dashboard"
-      }
-    ],
+    "rewrites": [{ "source": "/(.*)", "destination": "/" }],
     "env": {
       "NEXT_PUBLIC_API_URL": "https://your-api-url.com"
     }
+    
   }
   
