@@ -1,15 +1,13 @@
 {
     "version": 2,
-    "builds": [
+    "rewrites": [
       {
-        "src": "frontend/next.config.mjs",
-        "use": "@vercel/next"
+        "source": "/(.*)",
+        "destination": "/"
       }
     ],
-    "rewrites": [{ "source": "/(.*)", "destination": "/" }],
     "env": {
       "NEXT_PUBLIC_API_URL": "https://your-api-url.com"
     }
-    
   }
   
