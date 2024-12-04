@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import SkillsCard from "../../components/custom/SkillsCard";
 import EducationCard from "../../components/custom/EducationCard";
 import ExperienceCard from "../../components/custom/ExperienceCard";
@@ -21,7 +19,8 @@ const PageClient: React.FC = () => {
 
   const aiKeywords = AIKeywords.keywords;
 
-  const fetchStats = async () => {
+  // Use useCallback to memoize fetchStats
+  const fetchStats = useCallback(async () => {
     try {
       const coursesRes = await fetch("/api/getCourses?page=1");
       const coursesData = await coursesRes.json();
@@ -77,13 +76,13 @@ const PageClient: React.FC = () => {
     } catch (error) {
       console.error("Failed to fetch statistics", error);
     }
-  };
+  }, [aiKeywords]); // `aiKeywords` is a dependency
 
   useEffect(() => {
     if (aiKeywords.length === 0) return;
 
     fetchStats();
-  }, [aiKeywords]);
+  }, [aiKeywords, fetchStats]); // Now including fetchStats in the dependencies
 
   return (
     <div className="grid gap-4 p-4 text-white">

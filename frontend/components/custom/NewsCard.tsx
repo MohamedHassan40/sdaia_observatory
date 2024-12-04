@@ -1,26 +1,15 @@
-"use client";
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "../ui/dropdown-menu";
-import {  MoreVertical } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "../ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { News} from "@/types/global";
+import { News } from "@/types/global";
 import Link from "next/link";
-
-import { useState, useEffect } from "react";
-import { exportToCSV, exportToJSON } from "@/utils/exportUtils";
 import { fetchNews } from "@/actions/fetch-news";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "../ui/spinner";
+import { exportToCSV, exportToJSON } from "@/utils/exportUtils";
 
 interface NewsCardProps {
   news: News[];
@@ -28,32 +17,28 @@ interface NewsCardProps {
 
 const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   const [newNews, setNewNews] = useState<News[]>(news);
-
   const [page, setPage] = useState<number>(1);
 
   const { ref, inView } = useInView();
 
-
-  const loadMoreTweets = async () => {
-    
-    
-    const nextPage = (page % 7) + 1;
+  // Memoize loadMoreTweets using useCallback
+  const loadMoreTweets = useCallback(async () => {
+    const nextPage = (page % 7) + 1; // Ensure nextPage cycles through pages
     console.log("Next page", nextPage);
 
     const newProducts = (await fetchNews(nextPage)) ?? [];
-
     const newNewsData = newProducts.results;
 
     setNewNews((prevNews: News[]) => [...prevNews, ...newNewsData]);
     setPage(nextPage);
-  };
+  }, [page]); // page is now a dependency of loadMoreTweets
 
   useEffect(() => {
     if (inView) {
       console.log("In view");
       loadMoreTweets();
     }
-  }, [inView]);
+  }, [inView, loadMoreTweets]); // loadMoreTweets is now added to the dependency array
 
   const exportNewsData = () => {
     const dataToExport = news.map((item) => ({
@@ -100,22 +85,22 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       </CardHeader>
       <CardContent className="p-6 pb-2 text-sm overflow-y-scroll max-h-[600px]">
         <div className="flex flex-col w-full">
-          {newNews?.map((news: News) => (
-            <div key={news.url} className="flex flex-col gap-4 pb-4 ">
+          {newNews?.map((newsItem: News) => (
+            <div key={newsItem.url} className="flex flex-col gap-4 pb-4 ">
               <div className="flex flex-row gap-4 pb-1">
                 <div className="flex flex-col gap-2 max-w-full flex-1">
                   <p className={`font-bold text-md`} dir="auto">
-                    {news.title}
+                    {newsItem.title}
                   </p>
                   <p
                     className={`font-regular line-clamp-2 overflow-x-hidden`}
                     dir="auto"
                   >
-                    {news.body}
+                    {newsItem.body}
                   </p>
                   <div className="flex flex-row gap-2 items-center">
                     <Link
-                      href={`${news.url}`}
+                      href={`${newsItem.url}`}
                       target="_blank"
                       className="font-medium text-blue-500"
                     >
@@ -124,7 +109,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
                     <Separator className="w-[1px] bg-primary h-4" />
                     <div className={`font-regular line-clamp-2 `} dir="auto">
                       {new Date(
-                        news.date_time_pub || "05-02-2024"
+                        newsItem.date_time_pub || "05-02-2024"
                       ).toLocaleString()}
                     </div>
                   </div>
