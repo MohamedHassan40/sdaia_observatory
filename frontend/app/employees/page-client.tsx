@@ -1,3 +1,4 @@
+'use client';  // Add this directive at the top
 import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import SkillsCard from "../../components/custom/SkillsCard";
 import EducationCard from "../../components/custom/EducationCard";
