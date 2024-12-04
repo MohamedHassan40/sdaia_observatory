@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "../ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
