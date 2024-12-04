@@ -16,6 +16,7 @@ interface NewsCardProps {
   news: News[];
 }
 
+
 const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   const [newNews, setNewNews] = useState<News[]>(news);
   const [page, setPage] = useState<number>(1);
