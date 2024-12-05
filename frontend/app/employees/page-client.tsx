@@ -19,7 +19,6 @@ const PageClient: React.FC = () => {
   });
 
   const aiKeywords = AIKeywords.keywords;
-
   // Use useCallback to memoize fetchStats
   const fetchStats = useCallback(async () => {
     try {
