@@ -9,12 +9,10 @@ import { fetchNews } from "@/actions/fetch-news";
 
 export default async function Page() {
   const tweets = await fetchTweets(1);
-
-  const tweetsData = tweets?.results;
+  const tweetsData = tweets?.results || []; // Fallback to empty array
 
   const news = await fetchNews(1);
-
-  const newsData = news?.results;
+  const newsData = news?.results || []; // Fallback to empty array
 
   return (
     <main className="flex flex-col flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 ">
@@ -28,8 +26,8 @@ export default async function Page() {
         <NewsCard news={newsData} />
         <TweetsCard tweets={tweetsData} title="Latest AI Related Tweets" />
       </div>
-
       <StatisticsCard />
     </main>
   );
 }
+
