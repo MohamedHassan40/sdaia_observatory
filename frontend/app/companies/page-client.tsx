@@ -39,7 +39,7 @@ const CompaniesList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/getCompanies?page=${page}`, {
+        const response = await fetch(`https://sdaia-observatory.vercel.app/api/getCompanies?page=${page}`, {
           next: { revalidate: 1800 },
         });
         if (!response.ok) {
