@@ -11,7 +11,7 @@ load_dotenv(env)
 
 
 def get_urls_from_file_and_save_to_db():
-    with open("em.json", "r") as f:
+    with open("em.json", "r",encoding='utf-8') as f:
         data = json.load(f)
         employee_urls = data['data']
         for employee_url in employee_urls:
