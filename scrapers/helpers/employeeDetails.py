@@ -5,7 +5,7 @@ import json
 
 env = find_dotenv()
 load_dotenv(env)
-
+ 
 def get_urls_from_file_and_save_to_db():
     print("Loading URLs from em.json...")
     try:
