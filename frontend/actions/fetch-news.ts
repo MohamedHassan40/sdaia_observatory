@@ -2,7 +2,7 @@
 
 
 export async function fetchNews(page: number) {
-  const apiUrl = `https://sdaia-observatory.vercel.app/api/getNews?page=${page}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}api/getNews?page=${page}`;
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();

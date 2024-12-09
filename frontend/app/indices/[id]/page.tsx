@@ -24,7 +24,7 @@ import TweetsCard from "@/components/custom/TweetsCard";
 export default async function Page({ params }: { params: { id: string } }) {
   const data = await fetch(
     // `${process.env.BASE_FETCH_URL}/api/getSingleCompany?id=${params.id}`, {
-    `https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${params.id}`, {
+    `${process.env.NEXT_PUBLIC_API_URL}api/getSingleCompany?id=${params.id}`, {
       next : {revalidate: 1800}
     }
   );
@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const tweetData = await fetch(
     // `${process.env.BASE_FETCH_URL}/api/getTweetsForCompany?id=${params.id}`, {
-    `https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${params.id}`, {
+    `${process.env.NEXT_PUBLIC_API_URL}api/getTweetsForCompany?id=${params.id}`, {
       next : {revalidate: 1800}
     }
   );

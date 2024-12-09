@@ -95,7 +95,7 @@ const Fields = [
 
 export default async function Home() {
   const topicsData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getHotTopics`,
+    `${process.env.NEXT_PUBLIC_API_URL}api/getHotTopics`,
     {
       next: { revalidate: 1800 },
     }
@@ -104,7 +104,7 @@ export default async function Home() {
   const groupedTopics = convertTopicsToBarChartData(topics);
 
   const articlesGrowthData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getArticleGrowth`,
+    `${process.env.NEXT_PUBLIC_API_URL}api/getArticleGrowth`,
     {
       next: { revalidate: 1800 },
     }
