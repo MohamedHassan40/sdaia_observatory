@@ -137,8 +137,8 @@ class CompanyProducts(models.Model):
 
     title = models.CharField(max_length=2000)
     description = models.TextField(null=True, blank=True)
-    product_url = models.URLField(null=True, blank=True)
-    image_url = models.URLField(null=True, blank=True)
+    product_url = models.URLField(max_length=2000,null=True, blank=True)
+    image_url = models.URLField(max_length=2000,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     extra_text = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
@@ -159,8 +159,8 @@ class CompanyProducts(models.Model):
 class CompanyNewsAndEvents(models.Model):
     title = models.CharField(max_length=2000)
     description = models.TextField(null=True, blank=True)
-    news_url = models.URLField(blank=True, unique=True, max_length=1000)
-    image_url = models.URLField(null=True, blank=True, max_length=1000)
+    news_url = models.URLField(blank=True, unique=True, max_length=2000)
+    image_url = models.URLField(null=True, blank=True, max_length=2000)
     extra_text = models.TextField(null=True, blank=True)
     news_date = models.DateField(null=True, blank=True)
     is_event = models.BooleanField(default=False)
@@ -177,9 +177,9 @@ class CompanyNewsAndEvents(models.Model):
 class CompanyBlog(models.Model):
     title = models.CharField(max_length=2000)
     full_text = models.TextField(null=True, blank=True)
-    blog_url = models.URLField(null=True, blank=True, unique=True)
+    blog_url = models.URLField(null=True, blank=True, unique=True,max_length=2000)
     blog_date = models.DateField( null=True, blank=True)
-    image_url = models.URLField(null=True, blank=True)
+    image_url = models.URLField(null=True, blank=True,max_length=2000)
     extra_text = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
         Company, on_delete=models.CASCADE,  null=True, blank=True)
@@ -193,8 +193,8 @@ class CompanyBlog(models.Model):
 class CompanyJobs(models.Model):
     title = models.CharField(max_length=2000)
     description = models.TextField(null=True, blank=True)
-    job_url = models.URLField(null=True, blank=True)
-    image_url = models.URLField(null=True, blank=True)
+    job_url = models.URLField(null=True, blank=True,max_length=2000)
+    image_url = models.URLField(null=True, blank=True,max_length=2000)
     extra_text = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
         Company, on_delete=models.CASCADE, null=True, blank=True)
@@ -288,7 +288,7 @@ class VolunteerAndAwards(models.Model):
 class LicenseAndCertifications(models.Model):
     name = models.CharField(max_length=1000, null=True, blank=True)
     start = models.DateField(max_length=2000, null=True, blank=True)
-    end = models.DateField(max_length=2000, blank=True)
+    end = models.DateField(max_length=2000, blank=True,null=True)
     authority = models.CharField(max_length=2000, null=True, blank=True)
     user = models.ForeignKey(
         'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
@@ -359,7 +359,7 @@ class Skills(models.Model):
 
 
 class EmployeeUrl(models.Model):
-    url = models.URLField()
+    url = models.URLField(max_length=2000,null=True, blank=True,unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -377,7 +377,7 @@ class UserProfile(models.Model):
     public_identifier = models.CharField(max_length=2000, null=True, blank=True)
     email_required = models.BooleanField(default=False)
     open_connection = models.BooleanField(default=False)
-    profile_pic = models.URLField(null=True, blank=True)
+    profile_pic = models.URLField(null=True, blank=True,max_length=2000)
     current_company = models.ForeignKey(
         Company, on_delete=models.SET_NULL, null=True, blank=True)
     current_company_name = models.CharField(max_length=2000, null=True, blank=True)
