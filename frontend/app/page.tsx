@@ -29,7 +29,7 @@ export default async function Page() {
         <TweetsCard tweets={tweetsData} title="Latest AI Related Tweets" />
       </div>
 
-      <StatisticsCard />
+      <StatisticsCard /> 
     </main>
   );
 }
