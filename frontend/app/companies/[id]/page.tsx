@@ -23,59 +23,59 @@ import TweetsCard from "@/components/custom/TweetsCard";
 import CompanyNewsCard from "@/components/custom/CompanyNewsCard";
 import CompanyBlogsCard from "@/components/custom/CompanyBlogsCard";
 import CompanyProductsCard from "@/components/custom/CompanyProductsCard";
-
-// Correctly typing the PageProps to match the expectations
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-// Ensure that the params are destructured and used properly
-export default async function Page({ params }: PageProps) {
-  const { id } = params;
-
-  // Fetch the company data
+export default async function Page({ params }: { params: { id: string } }) {
   const data = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getSingleCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const company: Company = await data.json();
+    // `${process.env.BASE_FETCH_URL}/api/getSingleCompany?id=${params.id}` , {
+   'https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${params.id}' , {
 
-  // Fetch related data
+      next : {revalidate: 1800}
+    } 
+  );
+  let company: Company = await data.json();
+
   const tweetData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getTweetsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
+    // `${process.env.BASE_FETCH_URL}/api/getTweetsForCompany?id=${params.id}`, {
+   'https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${params.id}', {
+
+      next : {revalidate: 1800}
     }
   );
-  const tweets: Tweet[] = await tweetData.json();
+
+  const tweets = await tweetData.json();
+  const tweetsData: Tweet[] = tweets;
 
   const newsData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getNewsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
+    // `${process.env.BASE_FETCH_URL}/api/getNewsForCompany?id=${params.id}`, {
+   'https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${params.id}', {
+
+      next : {revalidate: 1800}
     }
   );
-  const news: CompanyNews[] = await newsData.json();
+
+  const newsResponse = await newsData.json();
+  const news: CompanyNews[] = newsResponse;
 
   const blogsData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getBlogsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
+    // `${process.env.BASE_FETCH_URL}/api/getBlogsForCompany?id=${params.id}`, {
+   'https://sdaia-observatory.vercel.app/api/getBlogsForCompany?id=${params.id}', {
+
+      next : {revalidate: 1800}
     }
   );
-  const blogs: any[] = await blogsData.json();
+
+  const blogsResponse = await blogsData.json();
+  const blogs: any[] = blogsResponse;
 
   const productsData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getProductsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
+    // `${process.env.BASE_FETCH_URL}/api/getProductsForCompany?id=${params.id}`, {
+   'https://sdaia-observatory.vercel.app/api/getProductsForCompany?id=${params.id}', {
+
+      next : {revalidate: 1800}
     }
   );
-  const products: any[] = await productsData.json();
+
+  const productsResponse = await productsData.json();
+  const Products: any[] = productsResponse;
 
   return (
     <main className="flex flex-col flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -199,10 +199,10 @@ export default async function Page({ params }: PageProps) {
         </CardFooter>
       </Card>
       <div className="grid grid-cols-1 w-full sm:grid-cols-2 gap-4">
-        <TweetsCard tweets={tweets} company={company} />
+        <TweetsCard tweets={tweetsData} company={company} />
         <CompanyNewsCard CompanyNews={news} />
         <CompanyBlogsCard CompanyBlogs={blogs} />
-        <CompanyProductsCard CompanyProducts={products} />
+        <CompanyProductsCard CompanyProducts={Products} />
       </div>
     </main>
   );
