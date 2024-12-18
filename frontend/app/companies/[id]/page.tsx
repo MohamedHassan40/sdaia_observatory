@@ -24,10 +24,14 @@ import CompanyNewsCard from "@/components/custom/CompanyNewsCard";
 import CompanyBlogsCard from "@/components/custom/CompanyBlogsCard";
 import CompanyProductsCard from "@/components/custom/CompanyProductsCard";
 
+// Correctly typing the PageProps to match the expectations
 interface PageProps {
-  params: { id: string }; // Correctly type the params
+  params: {
+    id: string;
+  };
 }
 
+// Ensure that the params are destructured and used properly
 export default async function Page({ params }: PageProps) {
   const { id } = params;
 
