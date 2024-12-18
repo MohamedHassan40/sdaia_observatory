@@ -1,4 +1,3 @@
-import { GetServerSideProps } from "next";
 import React from "react";
 import { Company, Tweet, CompanyNews, Location } from "@/types/global";
 import EntityCard from "@/components/custom/EntityCard";
@@ -24,45 +23,41 @@ import Image from "next/image";
 import TweetsCard from "@/components/custom/TweetsCard";
 import CompanyNewsCard from "@/components/custom/CompanyNewsCard";
 
-interface PageProps {
-  params: {
-    id: string;
-  };
+async function fetchCompanyData(id: string) {
+  const res = await fetch(
+    `https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${id}`,
+    { cache: "no-store" }
+  );
+  if (!res.ok) throw new Error("Failed to fetch company data");
+  return res.json();
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params as { id: string };
-  
-  const companyResponse = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${id}`
+async function fetchTweets(id: string) {
+  const res = await fetch(
+    `https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${id}`,
+    { cache: "no-store" }
   );
-  const company = await companyResponse.json();
+  if (!res.ok) throw new Error("Failed to fetch tweets");
+  return res.json();
+}
 
-  const tweetsResponse = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${id}`
+async function fetchNews(id: string) {
+  const res = await fetch(
+    `https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${id}`,
+    { cache: "no-store" }
   );
-  const tweets = await tweetsResponse.json();
+  if (!res.ok) throw new Error("Failed to fetch news");
+  return res.json();
+}
 
-  const newsResponse = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${id}`
-  );
-  const news = await newsResponse.json();
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
 
-  return {
-    props: {
-      params: { id },
-      company,
-      tweets,
-      news,
-    },
-  };
-};
+  // Fetch data
+  const company = await fetchCompanyData(id);
+  const tweets = await fetchTweets(id);
+  const news = await fetchNews(id);
 
-const Page: React.FC<PageProps & {
-  company: Company;
-  tweets: Tweet[];
-  news: CompanyNews[];
-}> = ({ params, company, tweets, news }) => {
   return (
     <main className="flex flex-col flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
       <Card className="overflow-hidden w-full" x-chunk="dashboard-05-chunk-4">
@@ -190,6 +185,4 @@ const Page: React.FC<PageProps & {
       </div>
     </main>
   );
-};
-
-export default Page;
+}
