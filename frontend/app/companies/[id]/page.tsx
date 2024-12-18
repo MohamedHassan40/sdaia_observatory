@@ -23,7 +23,10 @@ import TweetsCard from "@/components/custom/TweetsCard";
 import CompanyNewsCard from "@/components/custom/CompanyNewsCard";
 import CompanyBlogsCard from "@/components/custom/CompanyBlogsCard";
 import CompanyProductsCard from "@/components/custom/CompanyProductsCard";
-export default async function Page({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: { id: string }; // Correctly type the params
+}
+export default async function Page({ params }: PageProps) {
   const data = await fetch(
     // `${process.env.BASE_FETCH_URL}/api/getSingleCompany?id=${params.id}` , {
     `${process.env.NEXT_PUBLIC_API_URL}api/getSingleCompany?id=${params.id}` , {
