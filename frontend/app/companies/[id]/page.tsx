@@ -26,7 +26,7 @@ import CompanyProductsCard from "@/components/custom/CompanyProductsCard";
 
 // The page props are inferred, no need to manually wrap params in a Promise
 interface PageProps {
-  params: { id: string };
+  params: { id: string };  // Correctly typed as a plain object
 }
 
 export default async function Page({ params }: PageProps) {
@@ -204,4 +204,3 @@ export default async function Page({ params }: PageProps) {
     </main>
   );
 }
- 
