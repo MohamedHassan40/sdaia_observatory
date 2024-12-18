@@ -22,25 +22,25 @@ import Image from "next/image";
 import { Location, Company, Tweet, CompanyNews } from "@/types/global";
 import TweetsCard from "@/components/custom/TweetsCard";
 import CompanyNewsCard from "@/components/custom/CompanyNewsCard";
+
 export default async function Page({ params }: { params: { id: string } }) {
+  // Fetch company data
   const data = await fetch(
-    'https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${params.id}'
+    `https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${params.id}`
   );
-  let company: Company = await data.json();
+  const company: Company = await data.json();
 
+  // Fetch tweets for company
   const tweetData = await fetch(
-    'https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${params.id}'
+    `https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${params.id}`
   );
+  const tweets: Tweet[] = await tweetData.json();
 
-  const tweets = await tweetData.json();
-  const tweetsData: Tweet[] = tweets;
-
+  // Fetch company news
   const newsData = await fetch(
-    'https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${params.id}'
+    `https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${params.id}`
   );
-
-  const newsResponse = await newsData.json();
-  const news: CompanyNews[] = newsResponse;
+  const news: CompanyNews[] = await newsData.json();
 
   return (
     <main className="flex flex-col flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -78,7 +78,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         <CardContent className="p-6 pb-2 text-sm">
           <div className="grid gap-2">
             <div className="flex flex-col gap-1 py-1">
-              <div className="font-semibold"> Company Locations</div>
+              <div className="font-semibold">Company Locations</div>
               <div className="flex flex-row flex-wrap">
                 {company.locations.map((location: Location, index: number) => (
                   <div
@@ -100,14 +100,14 @@ export default async function Page({ params }: { params: { id: string } }) {
             </div>
             <Separator className="my-2" />
             <div className="flex flex-col gap-1 py-1">
-              <div className="font-semibold"> Description</div>
+              <div className="font-semibold">Description</div>
               <p className="text-muted-foreground truncate-4">
                 {company.description}
               </p>
             </div>
             <Separator className="my-2" />
             <div className="flex flex-col gap-1 py-1">
-              <div className="font-semibold"> Overview</div>
+              <div className="font-semibold">Overview</div>
               <div className="grid grid-cols-2 gap-y-4 gap-x-2 py-2">
                 <div className="flex flex-col gap-1 items-start">
                   <p className="font-medium">Total Employees</p>
@@ -164,112 +164,8 @@ export default async function Page({ params }: { params: { id: string } }) {
         </CardFooter>
       </Card>
       <div className="grid grid-cols-1 w-full sm:grid-cols-2 gap-4">
-        <TweetsCard tweets={tweetsData} company={company} />
+        <TweetsCard tweets={tweets} company={company} />
         <CompanyNewsCard CompanyNews={news} />
-
-        {/* <Card className="overflow-hidden flex-1" x-chunk="dashboard-05-chunk-4">
-          <CardHeader className="flex flex-row items-center border-b">
-            <div className="grid gap-0.5">
-              <CardTitle className="group flex items-center gap-2 text-lg ">
-                Jobs
-              </CardTitle>
-            </div>
-            <div className="ml-auto flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="outline" className="h-8 w-8">
-                    <MoreVertical className="h-3.5 w-3.5" />
-                    <span className="sr-only">More</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Export</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>CSV</DropdownMenuItem>
-                  <DropdownMenuItem>JSON</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pb-2 text-sm">
-            <div className="grid gap-2">
-              <div className="flex flex-col gap-1 py-1">
-                <div className="font-semibold"> Sample</div>
-                <p className="text-muted-foreground truncate-4">Sample</p>
-              </div>
-              <Separator className="my-2" />
-            </div>
-          </CardContent>
-        </Card> */}
-
-        <Card className="overflow-hidden flex-1" x-chunk="dashboard-05-chunk-4">
-          <CardHeader className="flex flex-row items-center border-b">
-            <div className="grid gap-0.5">
-              <CardTitle className="group flex items-center gap-2 text-lg ">
-                Blog
-              </CardTitle>
-            </div>
-            <div className="ml-auto flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="outline" className="h-8 w-8">
-                    <MoreVertical className="h-3.5 w-3.5" />
-                    <span className="sr-only">More</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Export</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>CSV</DropdownMenuItem>
-                  <DropdownMenuItem>JSON</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pb-2 text-sm">
-            <div className="grid gap-2">
-              <div className="flex flex-col gap-1 py-1">
-                <div className="font-semibold"> Sample</div>
-                <p className="text-muted-foreground truncate-4">Sample</p>
-              </div>
-              <Separator className="my-2" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="overflow-hidden flex-1" x-chunk="dashboard-05-chunk-4">
-          <CardHeader className="flex flex-row items-center border-b">
-            <div className="grid gap-0.5">
-              <CardTitle className="group flex items-center gap-2 text-lg ">
-                Products
-              </CardTitle>
-            </div>
-            <div className="ml-auto flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="outline" className="h-8 w-8">
-                    <MoreVertical className="h-3.5 w-3.5" />
-                    <span className="sr-only">More</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Export</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>CSV</DropdownMenuItem>
-                  <DropdownMenuItem>JSON</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pb-2 text-sm">
-            <div className="grid gap-2">
-              <div className="flex flex-col gap-1 py-1">
-                <div className="font-semibold"> Sample</div>
-                <p className="text-muted-foreground truncate-4">Sample</p>
-              </div>
-              <Separator className="my-2" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </main>
   );
