@@ -31,50 +31,43 @@ interface PageProps {
   };
 }
 
-export default async function Page({ params }: PageProps) {
+// Do NOT make this function async, remove 'async' if it's unnecessary
+export default function Page({ params }: PageProps) {
   const { id } = params;
 
-  // Fetch the company data
-  const data = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  let company: Company = await data.json();
+  // Use useEffect or a similar mechanism to fetch data
+  const [company, setCompany] = React.useState<Company | null>(null);
+  const [tweets, setTweets] = React.useState<Tweet[]>([]);
+  const [news, setNews] = React.useState<CompanyNews[]>([]);
+  const [blogs, setBlogs] = React.useState<any[]>([]);
+  const [products, setProducts] = React.useState<any[]>([]);
 
-  // Fetch related data
-  const tweetData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const tweets: Tweet[] = await tweetData.json();
+  React.useEffect(() => {
+    // Fetch the company data
+    fetch(`https://sdaia-observatory.vercel.app/api/getSingleCompany?id=${id}`)
+      .then((res) => res.json())
+      .then(setCompany);
 
-  const newsData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const news: CompanyNews[] = await newsData.json();
+    fetch(`https://sdaia-observatory.vercel.app/api/getTweetsForCompany?id=${id}`)
+      .then((res) => res.json())
+      .then(setTweets);
 
-  const blogsData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getBlogsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const blogs: any[] = await blogsData.json();
+    fetch(`https://sdaia-observatory.vercel.app/api/getNewsForCompany?id=${id}`)
+      .then((res) => res.json())
+      .then(setNews);
 
-  const productsData = await fetch(
-    `https://sdaia-observatory.vercel.app/api/getProductsForCompany?id=${id}`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const products: any[] = await productsData.json();
+    fetch(`https://sdaia-observatory.vercel.app/api/getBlogsForCompany?id=${id}`)
+      .then((res) => res.json())
+      .then(setBlogs);
+
+    fetch(`https://sdaia-observatory.vercel.app/api/getProductsForCompany?id=${id}`)
+      .then((res) => res.json())
+      .then(setProducts);
+  }, [id]);
+
+  if (!company) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main className="flex flex-col flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
