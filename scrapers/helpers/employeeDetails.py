@@ -67,6 +67,6 @@ def fetch_and_save_employees():
 
 # Uncomment the function calls you want to run
 # get_urls_from_file_and_save_to_db()
-# fetch_and_save_employees()
+fetch_and_save_employees()
 
-get_urls_from_file_and_save_to_db()
+# get_urls_from_file_and_save_to_db()
