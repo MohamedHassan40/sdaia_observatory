@@ -51,7 +51,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       next : {revalidate: 1800}
     }
   );
-
+ 
   const newsResponse = await newsData.json();
   const news: CompanyNews[] = newsResponse;
 
