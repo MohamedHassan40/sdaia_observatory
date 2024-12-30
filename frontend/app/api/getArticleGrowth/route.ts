@@ -6,7 +6,7 @@ export async function GET(request: Request) {
 
   const pageSize = 100;
 
-  const apiUrl = `https://api.openalex.org/works?group_by=publication_year&per_page=${pageSize}&filter=primary_topic.subfield.id:1702,authorships.countries:countries/sa`;
+  const apiUrl = `https://api.openalex.org/works?group_by=publication_year&per_page=${pageSize}&filter=default.search%3Aartificial%20Intelligence%20,authorships.countries:countries/sa`;
 
   const res = await fetch(apiUrl, {
     next : {revalidate: 30}

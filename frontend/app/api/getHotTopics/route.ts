@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const pageSize = 50;
 
   // const apiUrl = `https://api.openalex.org/institutions?filter=country_code:sa,type:education&sort=works_count:desc&page=1&per_page=${pageSize}`;
-  const apiUrl = `https://api.openalex.org/works?group_by=primary_topic.id&per_page=${pageSize}&filter=primary_topic.subfield.id:1702,authorships.countries:countries/sa`;
+  const apiUrl = `https://api.openalex.org/works?group_by=primary_topic.id&per_page=${pageSize}&filter=default.search%3Aartificial%20Intelligence%20,authorships.countries:countries/sa`;
 
   const res = await fetch(apiUrl, {
     next : {revalidate: 30}
