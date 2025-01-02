@@ -224,7 +224,7 @@ class Address(models.Model):
 
 class Experience(models.Model):
     company = models.ForeignKey(
-        Company, on_delete=models.CASCADE, null=True, blank=True)
+        Company, on_delete=models.SET_NULL, null=True, blank=True)
     company_name = models.CharField(max_length=2000, null=True, blank=True)
     company_link = models.CharField(max_length=2000, null=True, blank=True)
     title = models.CharField(max_length=2000)
@@ -235,7 +235,7 @@ class Experience(models.Model):
     end = models.DateField(blank=True, null=True)
     employment_type = models.CharField(max_length=2000, null=True, blank=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -251,8 +251,8 @@ class Experience(models.Model):
 
 
 class Education(models.Model):
-    # company = models.ForeignKey(
-    # Company, on_delete=models.CASCADE, null=True, blank=True)
+    company = models.ForeignKey(
+    Company, on_delete=models.SET_NULL, null=True, blank=True)
     company_link = models.CharField(max_length=2000, null=True, blank=True)
     start = models.DateField(blank=True, null=True)
     end = models.DateField(blank=True, null=True)
@@ -261,7 +261,7 @@ class Education(models.Model):
     schoolName = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -277,7 +277,7 @@ class VolunteerAndAwards(models.Model):
     start = models.DateField(blank=True, null=True)
     end = models.DateField(blank=True, null=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -291,7 +291,7 @@ class LicenseAndCertifications(models.Model):
     end = models.DateField(max_length=2000, blank=True)
     authority = models.CharField(max_length=2000, null=True, blank=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -304,7 +304,7 @@ class HonorAndAwards(models.Model):
     description = models.TextField(null=True, blank=True)
     issuer = models.CharField(max_length=2000,null=True, blank=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -326,7 +326,7 @@ class Courses(models.Model):
     name = models.CharField(max_length=2000, null=True, blank=True)
     number = models.CharField(max_length=2000, null=True, blank=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -340,7 +340,7 @@ class Projects(models.Model):
     start = models.DateField(blank=True, null=True)
     end = models.DateField(blank=True, null=True)
     user = models.ForeignKey(
-        'UserProfile', on_delete=models.CASCADE, null=True, blank=True)
+        'UserProfile', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

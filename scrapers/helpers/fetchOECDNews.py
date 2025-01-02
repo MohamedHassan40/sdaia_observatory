@@ -10,7 +10,7 @@ def fetch_news():
     base_url = os.getenv("BACKEND_URL") + "/api/v1/news/"
     articles_api_url = base_url + "articles/"
     sources_api_url = base_url + "sources/"
-    oecd_api_url = "https://wp.oecd.ai/wp-json/wp/v2/posts?_embed=1&acf_format=standard&per_page=99"
+    oecd_api_url = "https://wp.oecd.ai/wp-json/wp/v2/posts?_embed=1&acf_format=standard&per_page=10"
     
     page = 1
     total_pages = 1
