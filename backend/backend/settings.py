@@ -93,13 +93,14 @@ print(os.getenv("ENV"))
 
 if os.getenv("ENV") == "DEVELOPMENT":
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'HOST': os.environ.get("DB_HOST"),
-            'USER': os.environ.get("DB_USER_NAME"),
-            'PASSWORD': os.environ.get("DB_USER_PASSWORD"),
-            'NAME': os.environ.get("DB_NAME"),
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'observatory',
+        'USER': 'root',
+        'PASSWORD': 'X*2N2{t,S^>)bK{$',
+        'HOST': '34.72.34.42',
+        'PORT': '5432',
+    }
     }
 else:
     DATABASES = {
