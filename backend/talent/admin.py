@@ -6,8 +6,24 @@ from .models import (Company, Location, Address, Skills, Experience, UserProfile
 
 
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'industry', 'linkedin_username','id')
-    search_fields = ('name', 'industry','linkedin_username')
+    list_display = ('name', 'industry', 'linkedin_username', 'id')
+    search_fields = ('name', 'industry', 'linkedin_username')
+
+    def get_deleted_objects(self, objs, request):
+        """
+        Override this method to filter out related Experience objects
+        from the deletion confirmation page.
+        """
+        deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
+
+        # Exclude Experience objects from the deleted_objects list
+        deleted_objects = [
+            obj for obj in deleted_objects
+            if not isinstance(obj, Experience)
+        ]
+
+        return deleted_objects, model_count, perms_needed, protected
+
 
 
 class LocationAdmin(admin.ModelAdmin):
