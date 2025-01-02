@@ -91,8 +91,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000000
 print(os.getenv("ENV"))
 
-if os.getenv("ENV") == "DEVELOPMENT":
-    DATABASES = {
+# if os.getenv("ENV") == "DEVELOPMENT":
+#     DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'observatory',
+#         'USER': 'root',
+#         'PASSWORD': 'X*2N2{t,S^>)bK{$',
+#         'HOST': '34.72.34.42',
+#         'PORT': '5432',
+#     }
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'observatory',
@@ -102,14 +120,6 @@ if os.getenv("ENV") == "DEVELOPMENT":
         'PORT': '5432',
     }
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
