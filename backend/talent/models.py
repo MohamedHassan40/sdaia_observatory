@@ -223,8 +223,6 @@ class Address(models.Model):
 
 
 class Experience(models.Model):
-    company = models.ForeignKey(
-        Company, on_delete=models.SET_NULL, null=True, blank=True)
     company_name = models.CharField(max_length=2000, null=True, blank=True)
     company_link = models.CharField(max_length=2000, null=True, blank=True)
     title = models.CharField(max_length=2000)
