@@ -10,10 +10,7 @@ class CompanyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'industry', 'linkedin_username')
 
     def get_deleted_objects(self, objs, request):
-        """
-        Override this method to filter out related Experience objects
-        from the deletion confirmation page.
-        """
+        print("Custom get_deleted_objects called")
         deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
 
         # Exclude Experience objects from the deleted_objects list
