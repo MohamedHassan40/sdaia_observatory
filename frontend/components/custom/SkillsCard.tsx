@@ -1,101 +1,86 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "../ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exportToCSV, exportToJSON } from '@/utils/exportUtils';
-
-ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
-
-type Skill = {
-  id: number;
-  name: string;
-  times_mentioned: number;
-};
+import { Download, ChevronDown } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 
 interface SkillsCardProps {
   aiKeywords: string[];
+  loading: boolean;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ aiKeywords }) => {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const res = await fetch('/api/getSkills?page=1');
-        if (!res.ok) {
-          const errorDetails = await res.text();
-          throw new Error(`Error fetching data: ${res.statusText}. Details: ${errorDetails}`);
-        }
-        const result = await res.json();
-        console.log('Fetched data in component:', result);
-
-        if (result && Array.isArray(result.results)) {
-          setSkills(result.results);
-        } else {
-          throw new Error("Data is not an array");
-        }
-      } catch (err: any) {
-        console.error("Error fetching skills data:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSkills();
-  }, []);
-
-  const isAiRelated = (skillName: string) => {
-    return aiKeywords.some(keyword => skillName.toLowerCase().includes(keyword.toLowerCase()));
-  };
-
-  const filteredSkills = skills.filter(skill => isAiRelated(skill.name));
-
-  const data = {
-    labels: filteredSkills.map(skill => skill.name),
-    datasets: [
-      {
-        label: 'Times Mentioned',
-        data: filteredSkills.map(skill => skill.times_mentioned),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      }
-    ]
-  };
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+const SkillsCard: React.FC<SkillsCardProps> = ({ aiKeywords, loading }) => {
+  // Mock data - replace with your actual data fetching logic
+  const skillsData = [
+    { name: 'Machine Learning', value: 35 },
+    { name: 'Python', value: 30 },
+    { name: 'Data Analysis', value: 28 },
+    { name: 'Neural Networks', value: 25 },
+    { name: 'Natural Language Processing', value: 20 },
+    { name: 'Computer Vision', value: 18 },
+  ];
 
   return (
-    <Card className="py-0 col-span-2" x-chunk="dashboard-05-chunk-4">
-      <CardHeader className="flex flex-row items-center border-b">
-        <div className="grid gap-0.5">
-          <CardTitle className="group flex items-center gap-2 text-lg">
-            Skills and Mentions
-          </CardTitle>
-        </div>
-        <div className="ml-auto flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="outline" className="h-8 w-8">
-                <MoreVertical className="h-3.5 w-3.5" />
-                <span className="sr-only">More</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => exportToCSV(filteredSkills, 'skills')}>Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToJSON(filteredSkills, 'skills')}>Export JSON</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <CardTitle className="text-lg font-semibold">Top AI Skills</CardTitle>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-1">
+            <Download className="h-3.5 w-3.5" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm">
+            View All
+            <ChevronDown className="ml-1 h-3.5 w-3.5" />
+          </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-6 pb-2 max-h-[400px] md:max-h-[100vh] md:h-[100vh] text-sm overflow-y-scroll">
-        <Bar data={data} />
+      <CardContent className="h-[400px]">
+   
+   
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={skillsData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                angle={-45} 
+                textAnchor="end" 
+                height={70}
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar 
+                dataKey="value" 
+                name="Mentions" 
+                fill="#8884d8" 
+                radius={[4, 4, 0, 0]}
+              >
+                {skillsData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        
       </CardContent>
     </Card>
   );

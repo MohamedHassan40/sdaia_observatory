@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exportToCSV, exportToJSON } from '@/utils/exportUtils';
+import { Download, ChevronDown, ArrowUpRight, BadgeCheck } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 type Experience = {
   id: number;
@@ -15,6 +15,7 @@ type Experience = {
   end: string;
   location: string;
   employment_type: string;
+  description?: string;
 };
 
 interface ExperienceCardProps {
@@ -25,25 +26,16 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ aiKeywords }) => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchExperiences = async () => {
       try {
         const res = await fetch('/api/getExperiences?page=1');
-        if (!res.ok) {
-          const errorDetails = await res.text();
-          throw new Error(`Error fetching data: ${res.statusText}. Details: ${errorDetails}`);
-        }
+        if (!res.ok) throw new Error('Failed to fetch experiences');
         const result = await res.json();
-        console.log('Fetched data in component:', result);
-
-        if (result && Array.isArray(result.results)) {
-          setExperiences(result.results);
-        } else {
-          throw new Error("Data is not an array");
-        }
+        setExperiences(result.results || []);
       } catch (err: any) {
-        console.error("Error fetching experiences data:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -52,62 +44,99 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ aiKeywords }) => {
     fetchExperiences();
   }, []);
 
-  const isAiRelated = (experienceTitle: string) => {
-    return aiKeywords.some(keyword => experienceTitle.toLowerCase().includes(keyword.toLowerCase()));
+  const isAiRelated = (text: string) => {
+    return aiKeywords.some(keyword => 
+      new RegExp(keyword, 'i').test(text)
+    );
   };
 
-  const filteredExperiences = experiences.filter(exp => isAiRelated(exp.title));
+  const filteredExperiences = experiences.filter(exp => 
+    isAiRelated(exp.title) || isAiRelated(exp.company)
+  );
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
-    <Card className="overflow-hidden flex-1" x-chunk="dashboard-05-chunk-4">
-      <CardHeader className="flex flex-row items-center border-b">
-        <div className="grid gap-0.5">
-          <CardTitle className="group flex items-center gap-2 text-lg">
-            Work Experience
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <BadgeCheck className="h-5 w-5 text-primary" />
+            <span>AI Work Experience</span>
           </CardTitle>
-        </div>
-        <div className="ml-auto flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="outline" className="h-8 w-8">
-                <MoreVertical className="h-3.5 w-3.5" />
-                <span className="sr-only">More</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => exportToCSV(filteredExperiences, 'experiences')}>Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToJSON(filteredExperiences, 'experiences')}>Export JSON</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-1">
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </Button>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6 pb-2 max-h-[400px] md:max-h-[100vh] md:h-[100vh] text-sm overflow-y-scroll">
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">Title</th>
-              <th className="border px-4 py-2">Start</th>
-              <th className="border px-4 py-2">End</th>
-              <th className="border px-4 py-2">Location</th>
-              <th className="border px-4 py-2">Employment Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredExperiences.map(exp => (
-              <tr key={exp.id}>
-                <td className="border px-4 py-2">{exp.title}</td>
-                <td className="border px-4 py-2">{exp.start}</td>
-                <td className="border px-4 py-2">{exp.end}</td>
-                <td className="border px-4 py-2">{exp.location}</td>
-                <td className="border px-4 py-2">{exp.employment_type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <CardContent className="p-0">
+       
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="w-[30%]">Role</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead className="text-right">Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredExperiences.map((exp) => (
+                <React.Fragment key={exp.id}>
+                  <TableRow 
+                    className="cursor-pointer hover:bg-muted/30"
+                    onClick={() => toggleExpand(exp.id)}
+                  >
+                   
+                    <TableCell>{exp.company}</TableCell>
+                    <TableCell>
+                      {exp.start} - {exp.end || 'Present'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant="secondary">
+                        {exp.employment_type}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                  {expandedId === exp.id && exp.description && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="bg-muted/10 p-4">
+                        <div className="flex gap-4">
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground">
+                              {exp.description}
+                            </p>
+                          </div>
+                          <div className="w-40">
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium">Location:</span> {exp.location}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        
       </CardContent>
+      {filteredExperiences.length > 0 && (
+        <CardFooter className="justify-center py-3 border-t">
+          <Button variant="ghost" size="sm" className="gap-1">
+            View All
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };
