@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, ChevronDown } from "lucide-react";
@@ -18,13 +18,34 @@ interface CoursesCardProps {
   loading: boolean;
 }
 
+interface Course {
+  id: number;
+  name: string;
+  number?: string;
+}
+
 const CoursesCard: React.FC<CoursesCardProps> = ({ aiKeywords, loading }) => {
-  // Mock data - replace with your actual data fetching logic
-  const coursesData = [
-    { id: 1, name: 'Deep Learning Specialization', number: 'CS-101' },
-    { id: 2, name: 'Natural Language Processing', number: 'CS-205' },
-    { id: 3, name: 'Computer Vision Fundamentals', number: 'CS-310' },
-  ];
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/getCourses?page=1");
+        if (!res.ok) throw new Error("Failed to fetch courses");
+        const data = await res.json();
+        setCourses(data.results || data);
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   return (
     <Card className="col-span-full">
@@ -42,8 +63,9 @@ const CoursesCard: React.FC<CoursesCardProps> = ({ aiKeywords, loading }) => {
         </div>
       </CardHeader>
       <CardContent>
-
-
+        {isLoading && <div>Loading courses...</div>}
+        {error && <div className="text-red-500">{error}</div>}
+        {!isLoading && !error && (
           <Table>
             <TableHeader>
               <TableRow>
@@ -52,15 +74,15 @@ const CoursesCard: React.FC<CoursesCardProps> = ({ aiKeywords, loading }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {coursesData.map((course) => (
+              {courses.map((course) => (
                 <TableRow key={course.id}>
                   <TableCell className="font-medium">{course.name}</TableCell>
-                  <TableCell>{course.number}</TableCell>
+                  <TableCell>{course.number || '-'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-
+        )}
       </CardContent>
     </Card>
   );

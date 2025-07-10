@@ -10,6 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { AIKeywords } from "@/constants/aiKeywords"; // Fallback import
 import { Book, BookCopyIcon, Brain, BrainCog, ShieldCheck } from "lucide-react";
 
+interface Employee {
+  id: number;
+  first_name: string;
+  last_name: string;
+  headline?: string;
+  profile_pic?: string;
+}
+
+const fallbackProfilePic = "/default.png";
+
 const SkillStatCard = ({ title, number, icon: Icon }: any) => {
   return (
     <div className="flex flex-col items-center py-4 w-full bg-muted/40 rounded-lg mx-auto">
@@ -36,6 +46,9 @@ export default function EmployeesPageClient() {
     experiences: { total: 0, aiRelated: 0 },
     certifications: { total: 0, aiRelated: 0 },
   });
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [empLoading, setEmpLoading] = useState(true);
+  const [empError, setEmpError] = useState<string | null>(null);
 
   // Fetch AI keywords from API
   const fetchAIKeywords = useCallback(async () => {
@@ -139,6 +152,31 @@ export default function EmployeesPageClient() {
     fetchStats();
   }, [aiKeywords, fetchStats]); // Now including fetchStats in the dependencies
 
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      setEmpLoading(true);
+      setEmpError(null);
+      try {
+        const res = await fetch(`/api/getEmployees?page=1`);
+        if (!res.ok) throw new Error("Failed to fetch employees");
+        const data = await res.json();
+        let arr = data.results || data;
+        if (!Array.isArray(arr)) {
+          setEmpError("API did not return a list of employees.");
+          setEmployees([]);
+        } else {
+          setEmployees(arr);
+        }
+      } catch (err: any) {
+        setEmpError(err.message || "Unknown error");
+        setEmployees([]);
+      } finally {
+        setEmpLoading(false);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
   return (
     <div className="grid gap-4 p-4 text-white">
       <Card className="col-span-full">
@@ -187,6 +225,29 @@ export default function EmployeesPageClient() {
         <ExperienceCard aiKeywords={aiKeywords} />
         <CoursesCard aiKeywords={aiKeywords} loading={loading} />
         <LicenseAndCertificationsCard aiKeywords={aiKeywords} />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        {empLoading && <div>Loading employees...</div>}
+        {empError && <div className="text-red-500">{empError}</div>}
+        {employees.length === 0 && !empLoading && <div>No employees found.</div>}
+        {employees.map((emp) => (
+          <div
+            key={emp.id}
+            className="rounded-xl shadow-lg bg-white dark:bg-muted flex flex-col items-center overflow-hidden transition-transform hover:scale-105 hover:shadow-2xl border border-gray-200 dark:border-gray-700 p-6"
+          >
+            <div className="relative w-20 h-20 mb-4">
+              <img
+                src={emp.profile_pic || fallbackProfilePic}
+                alt={emp.first_name + " " + emp.last_name}
+                className="rounded-full object-cover w-20 h-20 bg-muted border border-gray-200 dark:border-gray-700"
+              />
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="font-bold text-xl text-gray-900 dark:text-white">{emp.first_name} {emp.last_name}</div>
+              <div className="text-sm text-muted-foreground text-center">{emp.headline}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

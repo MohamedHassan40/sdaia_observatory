@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, ChevronDown } from "lucide-react";
@@ -18,26 +18,37 @@ interface EducationCardProps {
   loading: boolean;
 }
 
+interface Education {
+  id: number;
+  schoolName: string;
+  degree: string;
+  field_of_study: string;
+  start: string;
+  end: string;
+}
+
 const EducationCard: React.FC<EducationCardProps> = ({ aiKeywords, loading }) => {
-  // Mock data - replace with your actual data fetching logic
-  const educationData = [
-    {
-      id: 1,
-      schoolName: 'Tech University',
-      degree: 'MSc',
-      field_of_study: 'Artificial Intelligence',
-      start: '2018',
-      end: '2020'
-    },
-    {
-      id: 2,
-      schoolName: 'State College',
-      degree: 'BSc',
-      field_of_study: 'Computer Science',
-      start: '2014',
-      end: '2018'
-    },
-  ];
+  const [education, setEducation] = useState<Education[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEducation = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/getEducation?page=1');
+        if (!res.ok) throw new Error('Failed to fetch education');
+        const data = await res.json();
+        setEducation(data.results || data);
+      } catch (err: any) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchEducation();
+  }, []);
 
   return (
     <Card>
@@ -55,7 +66,9 @@ const EducationCard: React.FC<EducationCardProps> = ({ aiKeywords, loading }) =>
         </div>
       </CardHeader>
       <CardContent>
-
+        {isLoading && <div>Loading education...</div>}
+        {error && <div className="text-red-500">{error}</div>}
+        {!isLoading && !error && (
           <Table>
             <TableHeader>
               <TableRow>
@@ -66,7 +79,7 @@ const EducationCard: React.FC<EducationCardProps> = ({ aiKeywords, loading }) =>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {educationData.map((edu) => (
+              {education.map((edu) => (
                 <TableRow key={edu.id}>
                   <TableCell className="font-medium">{edu.schoolName}</TableCell>
                   <TableCell>{edu.degree}</TableCell>
@@ -76,6 +89,7 @@ const EducationCard: React.FC<EducationCardProps> = ({ aiKeywords, loading }) =>
               ))}
             </TableBody>
           </Table>
+        )}
       </CardContent>
     </Card>
   );

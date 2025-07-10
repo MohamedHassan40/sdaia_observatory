@@ -31,7 +31,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ aiKeywords }) => {
   useEffect(() => {
     const fetchExperiences = async () => {
       try {
-        const res = await fetch('experience/?page=1');
+        const res = await fetch('/api/getExperiences?page=1');
         if (!res.ok) throw new Error('Failed to fetch experiences');
         const result = await res.json();
         setExperiences(result.results || []);

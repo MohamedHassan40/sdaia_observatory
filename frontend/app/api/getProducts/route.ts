@@ -9,7 +9,6 @@ export async function GET(request: Request) {
     }
   );
   const data = await res.json();
-  console.log(data);
-
-  return Response.json(data);
+  let products = Array.isArray(data) ? data : data.results || [];
+  return Response.json(products);
 }

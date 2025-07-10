@@ -1,170 +1,204 @@
-import Link from "next/link";
-import {
-  Home as HomeIcon,
-  ListFilter,
-  MoreVertical,
-  Table,
-  Truck,
-} from "lucide-react";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import StatisticsCard from "@/components/custom/StatisticsCard";
-import { CustomRadarChart } from "@/components/charts/RadarChart";
-import {
-  SaudiCountryProfileTortoise,
-  SaudiCountryProfileOxfordInsights,
-  SaudiAITalentConcentrationByGenderLineChart,
-  AITalentSkillRankingsLineChart,
-  AISkills2022,
-  SaudiGithubAIProjects,
-} from "@/constants/chartConstants";
-import NewsCard from "@/components/custom/NewsCard";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomLineChart } from "@/components/charts/LineChart";
-import RankingsCard from "@/components/custom/RankingsCard";
 import { ArticlesAndCitationsPerYear } from "@/constants/openAlexConstants";
-import {
-  convertArticlesToLineChartData,
-  convertTopicsToBarChartData,
-} from "@/utils/openAlex";
-import { CustomBarChart } from "@/components/charts/VerticalBarChart";
-import PublicationsCard from "@/components/custom/PublicationsCard";
+import Image from "next/image";
 
-const Fields = [
-  {
-    title: "Computer Vision",
-    value: "1",
-  },
-  {
-    title: "Control Thoery and Engineering",
-    value: "2",
-  },
-  {
-    title: "Data Mining",
-    value: "3",
-  },
-  {
-    title: "Human-Computer Interaction",
-    value: "4",
-  },
-  {
-    title: "Graphics and Multimedia",
-    value: "5",
-  },
-  {
-    title: "Information Management and Retrieval",
-    value: "6",
-  },
-  {
-    title: "Machine Learning",
-    value: "7",
-  },
-  {
-    title: "Mathematical Optimization",
-    value: "8",
-  },
-  {
-    title: "Natural Language Processing and Linguistics",
-    value: "9",
-  },
-  {
-    title: "Real-Time Computing",
-    value: "10",
-  },
-  {
-    title: "Simulation",
-    value: "11",
-  },
-  {
-    title: "Speech Recognition",
-    value: "12",
-  },
-  {
-    title: "Theoretical Computing",
-    value: "13",
-  },
-];
+interface NewsItem {
+  id: number;
+  title: string;
+  description: string;
+  news_url: string;
+  image_url: string;
+  news_date?: string;
+  date_time_pub?: string;
+  created_at?: string;
+  source?: string;
+}
 
-export default async function Home() {
-  const topicsData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getHotTopics`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
-  const topics = await topicsData.json();
-  const groupedTopics = convertTopicsToBarChartData(topics);
+interface Education {
+  id: number;
+  schoolName: string;
+  degree: string;
+  field_of_study: string;
+  start: string;
+  end: string;
+}
 
-  const articlesGrowthData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}api/getArticleGrowth`,
-    {
-      next: { revalidate: 1800 },
-    }
-  );
+const UniversitiesPage = () => {
+  // OECD News
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+  const [newsError, setNewsError] = useState<string | null>(null);
 
-  const articlesGrowth = await articlesGrowthData.json();
+  // Pagination for OECD news
+  const [newsPage, setNewsPage] = useState(1);
+  const newsPerPage = 10;
 
-  const groupedArticles = convertArticlesToLineChartData(articlesGrowth);
+  // University aggregation from employee education
+  const [universityCounts, setUniversityCounts] = useState<{ [key: string]: number }>({});
+  const [eduLoading, setEduLoading] = useState(true);
+  const [eduError, setEduError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch all pages of OECD news
+    const fetchAllNews = async () => {
+      setNewsLoading(true);
+      setNewsError(null);
+      let allNews: NewsItem[] = [];
+      let page = 1;
+      let hasNext = true;
+      try {
+        while (hasNext) {
+          const res = await fetch(`/api/getNews?page=${page}`);
+          if (!res.ok) throw new Error("Failed to fetch news");
+          const data = await res.json();
+          const pageNews = (data.results || data).filter((item: any) =>
+            item.title?.toLowerCase().includes("oecd") || item.source_title?.toLowerCase().includes("oecd")
+          );
+          allNews = allNews.concat(pageNews);
+          hasNext = !!data.next;
+          page++;
+        }
+        setNews(allNews);
+      } catch (err: any) {
+        setNewsError(err.message || "Unknown error");
+      } finally {
+        setNewsLoading(false);
+      }
+    };
+    fetchAllNews();
+  }, []);
+
+  useEffect(() => {
+    // Fetch education data and aggregate universities
+    const fetchEducation = async () => {
+      setEduLoading(true);
+      setEduError(null);
+      try {
+        const res = await fetch("/api/getEducation?page=1");
+        if (!res.ok) throw new Error("Failed to fetch education");
+        const data = await res.json();
+        const education = data.results || data;
+        const counts: { [key: string]: number } = {};
+        education.forEach((edu: Education) => {
+          if (edu.schoolName) {
+            counts[edu.schoolName] = (counts[edu.schoolName] || 0) + 1;
+          }
+        });
+        setUniversityCounts(counts);
+      } catch (err: any) {
+        setEduError(err.message || "Unknown error");
+      } finally {
+        setEduLoading(false);
+      }
+    };
+    fetchEducation();
+  }, []);
 
   return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-          <Card x-chunk="dashboard-05-chunk-1" className="py-0 col-span-2">
-            <CardHeader className="">
-              <CardDescription>
-                <Link href="https://openalex.org" target="_blank">
-                  Open Alex
-                </Link>
-              </CardDescription>
-              <CardTitle className="text-xl">
-                Saudi Arabia AI Publications Trend
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CustomLineChart
-                data={groupedArticles}
-                reverseXAxis
-                displayLegend={false}
-              />
-            </CardContent>
-            <CardFooter className="font-medium flex-col items-start gap-4">
-              <p className="text-xs">
-                The chart shows the number of articles under the topic AI per
-                year in Saudi Arabia.
-              </p>
-            </CardFooter>
-          </Card>
-          <Card x-chunk="dashboard-05-chunk-1" className="py-0 col-span-2">
-            <CardHeader className="">
-              <CardDescription>
-                <Link href="https://openalex.org" target="_blank">
-                  Open Alex
-                </Link>
-              </CardDescription>
-              <CardTitle className="text-xl">
-                Top AI Research Topics KSA
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CustomBarChart data={groupedTopics} displayLegend={false} />
-            </CardContent>
-          </Card>
-        </div>
+    <main className="p-8 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="col-span-full">
+        <Card>
+          <CardHeader>
+            <CardTitle>Saudi Arabia AI Publications Trend (OpenAlex)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CustomLineChart data={ArticlesAndCitationsPerYear.data} />
+          </CardContent>
+        </Card>
       </div>
-      <div className="grid gap-4 lg:col-span-1">
-        {/* <StatisticsCard /> */}
-        {/* <NewsCard /> */}
-        <PublicationsCard />
+      {/* OECD News Section */}
+      <div className="col-span-full">
+        <Card>
+          <CardHeader>
+            <CardTitle>OECD AI News</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {newsLoading && <div>Loading OECD news...</div>}
+            {newsError && <div className="text-red-500">{newsError}</div>}
+            {!newsLoading && !newsError && news.length === 0 && <div>No OECD news found.</div>}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {news.slice((newsPage - 1) * newsPerPage, newsPage * newsPerPage).map((item) => {
+                // Robust date handling: prefer date_time_pub, then news_date, then created_at
+                let dateStr = item.date_time_pub || item.news_date || item.created_at || null;
+                let formattedDate = dateStr ? new Date(dateStr).toISOString().slice(0, 10) : "No date";
+                return (
+                  <div
+                    key={item.id}
+                    className="block rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition h-full w-full"
+                  >
+                    <div className="flex gap-4 items-center h-full w-full">
+                      {item.image_url && (
+                        <Image
+                          src={item.image_url}
+                          alt={item.title}
+                          width={64}
+                          height={64}
+                          className="rounded-lg object-cover"
+                        />
+                      )}
+                      <div>
+                        <div className="font-bold text-md text-blue-700 line-clamp-2">{item.title}</div>
+                        <div className="text-xs text-muted-foreground line-clamp-2">{item.description}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{formattedDate}</div>
+                        <div className="mt-2">
+                          <a
+                            href={item.news_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-semibold"
+                            style={{ pointerEvents: 'auto' }}
+                          >
+                            View Article
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Pagination controls */}
+            <div className="flex justify-end mt-4">
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-semibold disabled:opacity-50"
+                onClick={() => setNewsPage(newsPage + 1)}
+                disabled={newsPage * newsPerPage >= news.length}
+              >
+                Next
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      {/* University Aggregation Section */}
+      <div className="col-span-full">
+        <Card>
+          <CardHeader>
+            <CardTitle>Universities Attended by Employees</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {eduLoading && <div>Loading university data...</div>}
+            {eduError && <div className="text-red-500">{eduError}</div>}
+            {!eduLoading && !eduError && Object.keys(universityCounts).length === 0 && <div>No university data found.</div>}
+            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(universityCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([name, count]) => (
+                  <div key={name} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-start">
+                    <div className="font-bold text-md">{name}</div>
+                    <div className="text-xs text-muted-foreground">{count} employee{count > 1 ? 's' : ''}</div>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
-}
+};
+
+export default UniversitiesPage;

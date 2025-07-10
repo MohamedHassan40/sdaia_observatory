@@ -39,9 +39,7 @@ const CompaniesList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}companies/?page=${page}`, {
-          next: { revalidate: 1800 },
-        });
+        const response = await fetch(`/api/getCompanies?page=${page}`);
         if (!response.ok) {
           throw new Error("Something went wrong while fetching companies");
         }
@@ -57,7 +55,6 @@ const CompaniesList = () => {
 
         setCompanies((prevCompanies) => {
           const existingIds = new Set(prevCompanies.map((c) => c.id));
-
           const newCompanies = data?.results?.results?.filter(
             (c: any) => !existingIds.has(c.id)
           );
@@ -72,7 +69,6 @@ const CompaniesList = () => {
         setLoading(false);
       }
     };
-
     fetchCompanies();
   }, [page]);
 
