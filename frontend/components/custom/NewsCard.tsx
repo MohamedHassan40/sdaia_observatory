@@ -180,7 +180,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news = [] }) => {
             ref={ref}
             className="flex justify-center items-center p-8 min-h-[100px]"
           >
-            {isLoading && <Spinner className="h-8 w-8 text-primary" />}
+            {isLoading && <Spinner  />}
             {!hasMore && !isLoading && (
               <p className="text-muted-foreground text-sm">
                 No more news to load
