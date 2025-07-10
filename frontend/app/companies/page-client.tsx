@@ -39,7 +39,7 @@ const CompaniesList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/getCompanies?page=${page}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}companies/?page=${page}`, {
           next: { revalidate: 1800 },
         });
         if (!response.ok) {

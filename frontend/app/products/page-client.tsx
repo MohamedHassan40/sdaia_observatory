@@ -29,6 +29,7 @@ const ProductsList = () => {
       setError(null);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/getProducts?page=${page}`, {
+
           next: { revalidate: 1800 },
         });
         if (!response.ok) {
