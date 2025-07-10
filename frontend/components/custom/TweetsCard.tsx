@@ -28,14 +28,16 @@ interface TweetsCardProps {
 }
 
 const TweetsCard: React.FC<TweetsCardProps> = ({
-  tweets,
+  tweets = [],
   company,
   companyName,
   title = 'Latest Tweets',
 }) => {
-  const [newTweets, setNewTweets] = useState<Tweet[]>(tweets);
+  const [newTweets, setNewTweets] = useState<Tweet[]>(tweets || []);
   const [page, setPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -43,28 +45,34 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
   });
 
   const loadMoreTweets = useCallback(async () => {
-    if (isLoading) return;
+    if (isLoading || !hasMore) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const nextPage = (page % 7) + 1;
-      const newProducts = (await fetchTweets(nextPage)) ?? { results: [] };
-      const newTweetData = newProducts.results || [];
+      const response = await fetchTweets(nextPage);
+      
+      if (!response?.results || response.results.length === 0) {
+        setHasMore(false);
+        return;
+      }
 
-      setNewTweets((prevTweets: Tweet[]) => [...prevTweets, ...newTweetData]);
+      setNewTweets((prevTweets) => [...(prevTweets || []), ...response.results]);
       setPage(nextPage);
     } catch (error) {
       console.error('Error loading more tweets:', error);
+      setError('Failed to load more tweets. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  }, [page, isLoading]);
+  }, [page, isLoading, hasMore]);
 
   useEffect(() => {
-    if (inView && !isLoading) {
+    if (inView && !isLoading && hasMore) {
       loadMoreTweets();
     }
-  }, [inView, loadMoreTweets, isLoading]);
+  }, [inView, loadMoreTweets, isLoading, hasMore]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -75,13 +83,31 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
   };
 
   const getTwitterUrl = (tweet: Tweet) => {
-    if (company) {
+    if (company?.company_twitter_id) {
       return `https://twitter.com/${company.company_twitter_id}/status/${tweet.tweet_id}`;
     }
     if (tweet.company_twitter_username) {
       return `https://twitter.com/${tweet.company_twitter_username}/status/${tweet.tweet_id}`;
     }
-    return `https://twitter.com/${companyName}/status/${tweet.tweet_id}`;
+    return `https://twitter.com/i/status/${tweet.tweet_id}`;
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    loadMoreTweets();
+  };
+
+  const exportTweetsData = () => {
+    return newTweets.map((tweet) => ({
+      id: tweet.id,
+      tweet_id: tweet.tweet_id,
+      full_text: tweet.full_text || '',
+      favorite_count: tweet.favorite_count || 0,
+      retweet_count: tweet.retweet_count || 0,
+      created_at: tweet.created_at || new Date().toISOString(),
+      company_twitter_username: tweet.company_twitter_username || '',
+      symbols: tweet.symbols?.map(s => s.symbol).join(', ') || '',
+    }));
   };
 
   return (
@@ -110,13 +136,13 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => exportToCSV(newTweets, 'tweets')}
+                onClick={() => exportToCSV(exportTweetsData(), 'tweets')}
                 className="cursor-pointer"
               >
                 Export as CSV
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => exportToJSON(newTweets, 'tweets')}
+                onClick={() => exportToJSON(exportTweetsData(), 'tweets')}
                 className="cursor-pointer"
               >
                 Export as JSON
@@ -126,12 +152,25 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-0 overflow-y-auto h-[600px] scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+        {error && (
+          <div className="p-4 bg-red-50 border-b border-red-200 flex flex-col items-center justify-center gap-2">
+            <p className="text-red-600">{error}</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRetry}
+              className="text-red-600 border-red-300 hover:bg-red-50"
+            >
+              Retry
+            </Button>
+          </div>
+        )}
         <div className="flex flex-col w-full divide-y divide-border/50">
           {newTweets
-            ?.filter((tweet: Tweet) => tweet.full_text !== '')
+            ?.filter((tweet: Tweet) => tweet.full_text)
             .map((tweet: Tweet) => (
               <div
-                key={tweet.id}
+                key={tweet.id || tweet.tweet_id || `${tweet.created_at}-${Math.random().toString(36).substring(2, 9)}`}
                 className="p-6 hover:bg-primary/5 transition-colors duration-150"
               >
                 <div className="flex flex-col gap-3">
@@ -143,11 +182,11 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
                         <HeartIcon className="h-4 w-4 text-pink-500/80" />
-                        <span>{tweet.favorite_count}</span>
+                        <span>{tweet.favorite_count || 0}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Redo2 className="h-4 w-4 text-blue-500/80" />
-                        <span>{tweet.retweet_count}</span>
+                        <span>{tweet.retweet_count || 0}</span>
                       </div>
                     </div>
 
@@ -163,18 +202,18 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
 
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      {formatDate(tweet.created_at)}
+                      {formatDate(tweet.created_at || new Date().toISOString())}
                     </div>
                   </div>
 
-                  {tweet.symbols.length > 0 && (
+                  {tweet.symbols?.length > 0 && (
                     <div className="flex flex-col gap-2 pt-2">
                       <span className="text-sm font-medium">Related hashtags:</span>
                       <div className="flex flex-wrap gap-2">
                         {tweet.symbols.map((symbol) => (
                           <Link
-                            href={`https://twitter.com/search?q=%23${symbol.symbol.slice(1)}`}
-                            key={symbol.id}
+                            href={`https://twitter.com/search?q=%23${symbol.symbol?.slice(1)}`}
+                            key={symbol.id || symbol.symbol}
                             className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                           >
                             {symbol.symbol}
@@ -189,9 +228,14 @@ const TweetsCard: React.FC<TweetsCardProps> = ({
           
           <div
             ref={ref}
-            className="flex justify-center items-center p-8"
+            className="flex justify-center items-center p-8 min-h-[100px]"
           >
             {isLoading && <Spinner className="h-8 w-8 text-primary" />}
+            {!hasMore && !isLoading && (
+              <p className="text-muted-foreground text-sm">
+                No more tweets to load
+              </p>
+            )}
           </div>
         </div>
       </CardContent>

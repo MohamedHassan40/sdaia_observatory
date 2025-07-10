@@ -15,7 +15,7 @@ def get_urls_from_file_and_save_to_db():
             print(f"Found {len(employee_urls)} employee URLs.")
             for employee_url in employee_urls:
                 # api_url = os.getenv("BACKEND_URL") + "/api/v1/talent/user-urls/"
-                api_url = ("http://35.232.23.77:8000/") + "/api/v1/talent/user-urls/"
+                api_url = ("http://34.132.72.150:8000/") + "/api/v1/talent/user-urls/"
                 print(f"Saving URL: {employee_url}")
                 response = requests.post(api_url, json={"url": employee_url})
                 if response.status_code == 200:
@@ -39,8 +39,8 @@ def fetch_and_save_employees():
     print("Fetching employee URLs from backend with pagination...")
 
     # API endpoints
-    urls_api_url = "http://35.232.23.77:8000/api/v1/talent/user-urls/"  # Base URL for fetching URLs
-    employee_api_url = "http://35.232.23.77:8000/api/v1/talent/users/create-from-json/"
+    urls_api_url = "http://34.132.72.150:8000/api/v1/talent/user-urls/"  # Base URL for fetching URLs
+    employee_api_url = "http://34.132.72.150:8000/api/v1/talent/users/create-from-json/"
     linkedin_api_url = "https://linkedin-data-api.p.rapidapi.com/get-profile-data-by-url"
 
     headers = {

@@ -22,14 +22,31 @@ import { Company } from "@/types/global";
 import Image from "next/image";
 import Link from "next/link";
 import ImageWithFallback from "../ui/ImageWithFallback";
+import { sanitizeLinkedInUrl, getImageFallback, logImageError } from "@/utils/imageUtils";
 
 interface EntityCardProps {
   company: Company;
 }
 
 const EntityCard: React.FC<EntityCardProps> = ({ company }) => {
-  const coverImageUrl = company.cover_image_url || "/cover_backup_sdaia.png";
-  const logoUrl = company.logo_url || "/default_logo.png";
+  // Handle LinkedIn URLs properly - they might contain special characters
+  const coverImageUrl = sanitizeLinkedInUrl(company.cover_image_url || getImageFallback('cover'));
+  const logoUrl = sanitizeLinkedInUrl(company.logo_url || getImageFallback('logo'));
+
+  // Debug logging for LinkedIn URLs
+  if (company.cover_image_url?.includes('licdn.com')) {
+    console.log('LinkedIn cover URL:', {
+      original: company.cover_image_url,
+      sanitized: coverImageUrl
+    });
+  }
+  
+  if (company.logo_url?.includes('licdn.com')) {
+    console.log('LinkedIn logo URL:', {
+      original: company.logo_url,
+      sanitized: logoUrl
+    });
+  }
 
   return (
     <>
@@ -38,8 +55,8 @@ const EntityCard: React.FC<EntityCardProps> = ({ company }) => {
           <div className="h-32 relative flex w-full">
             <ImageWithFallback
               src={coverImageUrl}
-              fallbackSrc="/cover_backup_sdaia.png"
-              alt={company.name}
+              fallbackSrc={getImageFallback('cover')}
+              alt={`${company.name} cover image`}
               objectFit="cover"
               className="rounded-t-lg"
             />
@@ -48,13 +65,15 @@ const EntityCard: React.FC<EntityCardProps> = ({ company }) => {
             <div className="grid gap-0.5">
               <CardTitle className="group flex items-center gap-2 text-lg">
                 {logoUrl && (
-                  <Image
-                    src={logoUrl}
-                    alt={company.name}
-                    width={32}
-                    height={32}
-                    className="rounded-lg bg-muted"
-                  />
+                  <div className="relative w-8 h-8">
+                    <ImageWithFallback
+                      src={logoUrl}
+                      fallbackSrc={getImageFallback('logo')}
+                      alt={`${company.name} logo`}
+                      objectFit="cover"
+                      className="rounded-lg bg-muted w-8 h-8"
+                    />
+                  </div>
                 )}
                 {company.name}
               </CardTitle>

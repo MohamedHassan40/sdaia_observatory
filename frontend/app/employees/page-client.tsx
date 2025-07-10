@@ -6,81 +6,136 @@ import ExperienceCard from "../../components/custom/ExperienceCard";
 import CoursesCard from "../../components/custom/CoursesCard";
 import LicenseAndCertificationsCard from "../../components/custom/LicenseAndCertificationsCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AIKeywords } from "@/constants/aiKeywords";
+import { Badge } from "@/components/ui/badge";
+import { AIKeywords } from "@/constants/aiKeywords"; // Fallback import
 import { Book, BookCopyIcon, Brain, BrainCog, ShieldCheck } from "lucide-react";
 
-const PageClient: React.FC = () => {
+const SkillStatCard = ({ title, number, icon: Icon }: any) => {
+  return (
+    <div className="flex flex-col items-center py-4 w-full bg-muted/40 rounded-lg mx-auto">
+      <div className="flex flex-col items-center justify-between h-full gap-2 w-full p-4 max-w-[90%]">
+        <Icon className="h-8 w-8" />
+        <p className="font-semibold text-lg text-center text-foreground pt-4">
+          {number}
+        </p>
+        <p className="font-light text-muted-foreground text-sm leading-relaxed text-center">
+          {title}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default function EmployeesPageClient() {
+  const [aiKeywords, setAiKeywords] = useState<string[]>(AIKeywords.keywords); // Default to fallback
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalCourses: 0,
-    totalSkills: 0,
-    totalEducation: 0,
-    totalExperiences: 0,
-    totalCertifications: 0,
+    courses: { total: 0, aiRelated: 0 },
+    skills: { total: 0, aiRelated: 0 },
+    education: { total: 0, aiRelated: 0 },
+    experiences: { total: 0, aiRelated: 0 },
+    certifications: { total: 0, aiRelated: 0 },
   });
 
-  const aiKeywords = AIKeywords.keywords;
+  // Fetch AI keywords from API
+  const fetchAIKeywords = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/getAIKeywords`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.keywords) {
+          setAiKeywords(data.keywords);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch AI keywords, using fallback:", error);
+      // Keep using the fallback from import
+    }
+  }, []);
+
   // Use useCallback to memoize fetchStats
   const fetchStats = useCallback(async () => {
     try {
+      // Fetch courses
       const coursesRes = await fetch("/api/getCourses?page=1");
       const coursesData = await coursesRes.json();
-      const totalCourses = coursesData.results.filter(
-        (course: { name: string }) =>
-          aiKeywords.some((keyword) =>
-            course.name.toLowerCase().includes(keyword.toLowerCase())
-          )
-      ).length;
+      const aiRelatedCourses = coursesData?.results?.filter((course: any) =>
+        aiKeywords.some((keyword) =>
+          course.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      ) || [];
 
+      // Fetch skills
       const skillsRes = await fetch("/api/getSkills?page=1");
       const skillsData = await skillsRes.json();
-      const totalSkills = skillsData.results.filter((skill: { name: string }) =>
+      const aiRelatedSkills = skillsData?.results?.filter((skill: any) =>
         aiKeywords.some((keyword) =>
           skill.name.toLowerCase().includes(keyword.toLowerCase())
         )
-      ).length;
+      ) || [];
 
+      // Fetch education
       const educationRes = await fetch("/api/getEducation?page=1");
       const educationData = await educationRes.json();
-      const totalEducation = educationData.results.filter(
-        (edu: { field_of_study: string }) =>
-          aiKeywords.some((keyword) =>
-            edu.field_of_study.toLowerCase().includes(keyword.toLowerCase())
-          )
-      ).length;
+      const aiRelatedEducation = educationData?.results?.filter((edu: any) =>
+        aiKeywords.some((keyword) =>
+          edu.field_of_study.toLowerCase().includes(keyword.toLowerCase())
+        )
+      ) || [];
 
+      // Fetch experiences
       const experiencesRes = await fetch("/api/getExperiences?page=1");
       const experiencesData = await experiencesRes.json();
-      const totalExperiences = experiencesData.results.filter(
-        (exp: { title: string }) =>
-          aiKeywords.some((keyword) =>
-            exp.title.toLowerCase().includes(keyword.toLowerCase())
-          )
-      ).length;
+      const aiRelatedExperiences = experiencesData?.results?.filter((exp: any) =>
+        aiKeywords.some((keyword) =>
+          exp.title.toLowerCase().includes(keyword.toLowerCase())
+        )
+      ) || [];
 
+      // Fetch certifications
       const certificationsRes = await fetch("/api/getCertifications?page=1");
       const certificationsData = await certificationsRes.json();
-      const totalCertifications = certificationsData.results.filter(
-        (cert: { name: string }) =>
-          aiKeywords.some((keyword) =>
-            cert.name.toLowerCase().includes(keyword.toLowerCase())
-          )
-      ).length;
+      const aiRelatedCertifications = certificationsData?.results?.filter((cert: any) =>
+        aiKeywords.some((keyword) =>
+          cert.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      ) || [];
 
       setStats({
-        totalCourses,
-        totalSkills,
-        totalEducation,
-        totalExperiences,
-        totalCertifications,
+        courses: {
+          total: coursesData?.results?.length || 0,
+          aiRelated: aiRelatedCourses.length,
+        },
+        skills: {
+          total: skillsData?.results?.length || 0,
+          aiRelated: aiRelatedSkills.length,
+        },
+        education: {
+          total: educationData?.results?.length || 0,
+          aiRelated: aiRelatedEducation.length,
+        },
+        experiences: {
+          total: experiencesData?.results?.length || 0,
+          aiRelated: aiRelatedExperiences.length,
+        },
+        certifications: {
+          total: certificationsData?.results?.length || 0,
+          aiRelated: aiRelatedCertifications.length,
+        },
       });
     } catch (error) {
       console.error("Failed to fetch statistics", error);
+    } finally {
+      setLoading(false);
     }
   }, [aiKeywords]); // `aiKeywords` is a dependency
 
   useEffect(() => {
-    if (aiKeywords.length === 0) return;
+    fetchAIKeywords();
+  }, [fetchAIKeywords]);
 
+  useEffect(() => {
+    if (aiKeywords.length === 0) return;
     fetchStats();
   }, [aiKeywords, fetchStats]); // Now including fetchStats in the dependencies
 
@@ -100,57 +155,39 @@ const PageClient: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-between items-center w-full gap-4">
             <SkillStatCard
               title="AI Related Courses"
-              number={stats.totalCourses}
+              number={stats.courses.aiRelated}
               icon={Book}
             />
             <SkillStatCard
               title="AI Related Skills"
-              number={stats.totalSkills}
+              number={stats.skills.aiRelated}
               icon={BrainCog}
             />
             <SkillStatCard
               title="AI Related Education"
-              number={stats.totalEducation}
+              number={stats.education.aiRelated}
               icon={BookCopyIcon}
             />
             <SkillStatCard
               title="AI Related Experiences"
-              number={stats.totalExperiences}
+              number={stats.experiences.aiRelated}
               icon={Brain}
             />
             <SkillStatCard
               title="AI Related Certifications"
-              number={stats.totalCertifications}
+              number={stats.certifications.aiRelated}
               icon={ShieldCheck}
             />
           </div>
         </CardContent>
       </Card>
       <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4">
-        <SkillsCard aiKeywords={aiKeywords} />
-        <EducationCard aiKeywords={aiKeywords} />
+        <SkillsCard aiKeywords={aiKeywords} loading={loading} />
+        <EducationCard aiKeywords={aiKeywords} loading={loading} />
         <ExperienceCard aiKeywords={aiKeywords} />
-        <CoursesCard aiKeywords={aiKeywords} />
+        <CoursesCard aiKeywords={aiKeywords} loading={loading} />
         <LicenseAndCertificationsCard aiKeywords={aiKeywords} />
       </div>
     </div>
   );
-};
-
-export default PageClient;
-
-const SkillStatCard = ({ title, number, icon: Icon }: any) => {
-  return (
-    <div className="flex flex-col items-center py-4 w-full bg-muted/40 rounded-lg mx-auto">
-      <div className="flex flex-col items-center justify-between h-full gap-2 w-full p-4 max-w-[90%]">
-        <Icon className="h-8 w-8" />
-        <p className="font-semibold text-lg text-center text-foreground pt-4">
-          {number}
-        </p>
-        <p className="font-light text-muted-foreground text-sm leading-relaxed text-center">
-          {title}
-        </p>
-      </div>
-    </div>
-  );
-};
+}

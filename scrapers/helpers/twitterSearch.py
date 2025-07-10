@@ -34,7 +34,7 @@ def search_tweets(keywords):
 
 def save_tweets(tweets):
 
-    # api_url = f"http://35.232.23.77:8000/api/v1/talent/tweets/create-tweet-from-json/"
+    # api_url = f"http://34.132.72.150:8000/api/v1/talent/tweets/create-tweet-from-json/"
     api_url = os.getenv("BACKEND_URL") + \
         "/api/v1/talent/tweets/create-tweet-from-json/"
     response = requests.post(api_url, json=tweets)

@@ -24,46 +24,54 @@ interface NewsCardProps {
   news: News[];
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
-  const [newNews, setNewNews] = useState<News[]>(news);
+const NewsCard: React.FC<NewsCardProps> = ({ news = [] }) => {
+  const [newNews, setNewNews] = useState<News[]>(news || []);
   const [page, setPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   const { ref, inView } = useInView({
     threshold: 0.1,
     triggerOnce: false,
   });
 
-  const loadMoreTweets = useCallback(async () => {
-    if (isLoading) return;
+  const loadMoreNews = useCallback(async () => {
+    if (isLoading || !hasMore) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const nextPage = (page % 7) + 1;
-      const newProducts = (await fetchNews(nextPage)) ?? [];
-      const newNewsData = newProducts.results;
+      const response = await fetchNews(nextPage);
+      
+      if (!response?.results || response.results.length === 0) {
+        setHasMore(false);
+        return;
+      }
 
-      setNewNews((prevNews: News[]) => [...prevNews, ...newNewsData]);
+      setNewNews((prevNews) => [...(prevNews || []), ...response.results]);
       setPage(nextPage);
     } catch (error) {
       console.error('Error loading more news:', error);
+      setError('Failed to load more news. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  }, [page, isLoading]);
+  }, [page, isLoading, hasMore]);
 
   useEffect(() => {
-    if (inView && !isLoading) {
-      loadMoreTweets();
+    if (inView && !isLoading && hasMore) {
+      loadMoreNews();
     }
-  }, [inView, loadMoreTweets, isLoading]);
+  }, [inView, loadMoreNews, isLoading, hasMore]);
 
   const exportNewsData = () => {
     return newNews.map((item) => ({
-      title: item.title,
-      body: item.body,
-      url: item.url,
-      date_time_pub: item.date_time_pub,
+      title: item.title || 'No title',
+      body: item.body || 'No content',
+      url: item.url || '#',
+      date_time_pub: item.date_time_pub || new Date().toISOString(),
     }));
   };
 
@@ -73,6 +81,11 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
     } catch {
       return format(new Date(), 'MMM d, yyyy · h:mm a');
     }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    loadMoreNews();
   };
 
   return (
@@ -117,42 +130,62 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0 overflow-y-auto h-[600px] scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+        {error && (
+          <div className="p-4 bg-red-50 border-b border-red-200 flex flex-col items-center justify-center gap-2">
+            <p className="text-red-600">{error}</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRetry}
+              className="text-red-600 border-red-300 hover:bg-red-50"
+            >
+              Retry
+            </Button>
+          </div>
+        )}
         <div className="flex flex-col w-full divide-y divide-border/50">
           {newNews?.map((newsItem: News) => (
-            <div
-              key={newsItem.url}
-              className="p-6 hover:bg-primary/5 transition-colors duration-150"
-            >
-              <div className="flex flex-col gap-3">
-                <h3 className="font-bold text-lg leading-tight text-foreground">
-                  {newsItem.title}
-                </h3>
-                <p className="text-muted-foreground line-clamp-3">
-                  {newsItem.body}
-                </p>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <Link
-                    href={newsItem.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Read full article
-                  </Link>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {formatDate(newsItem.date_time_pub || new Date().toISOString())}
-                  </span>
+            newsItem && (
+              <div
+                key={newsItem.url || `${newsItem.title}-${Math.random().toString(36).substring(2, 9)}`}
+                className="p-6 hover:bg-primary/5 transition-colors duration-150"
+              >
+                <div className="flex flex-col gap-3">
+                  <h3 className="font-bold text-lg leading-tight text-foreground">
+                    {newsItem.title || 'Untitled Article'}
+                  </h3>
+                  <p className="text-muted-foreground line-clamp-3">
+                    {newsItem.body || 'No content available'}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <Link
+                      href={newsItem.url || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Read full article
+                    </Link>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {formatDate(newsItem.date_time_pub || new Date().toISOString())}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )
           ))}
           <div
             ref={ref}
-            className="flex justify-center items-center p-8"
+            className="flex justify-center items-center p-8 min-h-[100px]"
           >
             {isLoading && <Spinner className="h-8 w-8 text-primary" />}
+            {!hasMore && !isLoading && (
+              <p className="text-muted-foreground text-sm">
+                No more news to load
+              </p>
+            )}
           </div>
         </div>
       </CardContent>
