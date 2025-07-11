@@ -93,7 +93,9 @@ export default function EmployeesPageClient() {
       ) || [];
 
       // Fetch education
-      const educationRes = await fetch("/api/getEducation?page=1");
+      const educationRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/education?page=${page}`
+        );
       const educationData = await educationRes.json();
       const aiRelatedEducation = educationData?.results?.filter((edu: any) =>
         aiKeywords.some((keyword) =>
@@ -113,7 +115,9 @@ export default function EmployeesPageClient() {
       ) || [];
 
       // Fetch certifications
-      const certificationsRes = await fetch("/api/getCertifications?page=1");
+      const certificationsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/certifications?page=${page}`
+        );
       const certificationsData = await certificationsRes.json();
       const aiRelatedCertifications = certificationsData?.results?.filter((cert: any) =>
         aiKeywords.some((keyword) =>
@@ -164,7 +168,9 @@ export default function EmployeesPageClient() {
       setEmpLoading(true);
       setEmpError(null);
       try {
-        const res = await fetch(`/api/getEmployees?page=1`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/employees?page=${page}`
+        );
         if (!res.ok) throw new Error("Failed to fetch employees");
         const data = await res.json();
         let arr = data.results || data;

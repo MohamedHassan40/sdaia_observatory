@@ -27,7 +27,9 @@ const LicenseAndCertificationsCard: React.FC<LicenseAndCertificationsCardProps> 
   useEffect(() => {
     const fetchCertifications = async () => {
       try {
-        const res = await fetch('/api/getCertifications?page=1');
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/certifications?page=1`
+        );
         if (!res.ok) {
           const errorDetails = await res.text();
           throw new Error(`Error fetching data: ${res.statusText}. Details: ${errorDetails}`);

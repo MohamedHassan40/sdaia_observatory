@@ -27,11 +27,14 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ aiKeywords }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchExperiences = async () => {
       try {
-        const res = await fetch('/api/getExperiences?page=1');
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/experiences?page=${page}`
+        );
         if (!res.ok) throw new Error('Failed to fetch experiences');
         const result = await res.json();
         setExperiences(result.results || []);
