@@ -39,7 +39,8 @@ const CompaniesList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/getCompanies?page=${page}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies?page=${page}`);
+
         if (!response.ok) {
           throw new Error("Something went wrong while fetching companies");
         }
