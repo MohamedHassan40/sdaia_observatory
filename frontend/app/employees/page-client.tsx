@@ -116,7 +116,7 @@ export default function EmployeesPageClient() {
 
       // Fetch certifications
       const certificationsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/certifications?page=${page}`
+          `${process.env.NEXT_PUBLIC_API_URL}/licenseandcertifications?page=${page}`
         );
       const certificationsData = await certificationsRes.json();
       const aiRelatedCertifications = certificationsData?.results?.filter((cert: any) =>

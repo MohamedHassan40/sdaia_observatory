@@ -28,7 +28,7 @@ const LicenseAndCertificationsCard: React.FC<LicenseAndCertificationsCardProps> 
     const fetchCertifications = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/certifications?page=1`
+          `${process.env.NEXT_PUBLIC_API_URL}/licenseandcertifications?page=1`
         );
         if (!res.ok) {
           const errorDetails = await res.text();
