@@ -20,7 +20,11 @@ const ProductsPage = () => {
 
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
-        let arr = data.results || data;
+        let arr = Array.isArray(data.results)
+          ? data.results
+          : Array.isArray(data.results?.results)
+            ? data.results.results
+            : [];
         if (!Array.isArray(arr)) {
           setError("API did not return a list of products.");
           setProducts([]);
