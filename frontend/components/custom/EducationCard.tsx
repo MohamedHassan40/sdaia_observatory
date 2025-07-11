@@ -31,13 +31,16 @@ const EducationCard: React.FC<EducationCardProps> = ({ aiKeywords, loading }) =>
   const [education, setEducation] = useState<Education[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchEducation = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/getEducation?page=1');
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/education?page=${page}`
+        );
         if (!res.ok) throw new Error('Failed to fetch education');
         const data = await res.json();
         setEducation(data.results || data);
