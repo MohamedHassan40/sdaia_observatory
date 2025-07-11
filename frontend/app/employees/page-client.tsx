@@ -82,7 +82,9 @@ export default function EmployeesPageClient() {
       ) || [];
 
       // Fetch skills
-      const skillsRes = await fetch("/api/getSkills?page=1");
+      const skillsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/skills?page=${page}`
+        );
       const skillsData = await skillsRes.json();
       const aiRelatedSkills = skillsData?.results?.filter((skill: any) =>
         aiKeywords.some((keyword) =>
@@ -100,7 +102,9 @@ export default function EmployeesPageClient() {
       ) || [];
 
       // Fetch experiences
-      const experiencesRes = await fetch("/api/getExperiences?page=1");
+      const experiencesRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/experience?page=${page}`
+        );
       const experiencesData = await experiencesRes.json();
       const aiRelatedExperiences = experiencesData?.results?.filter((exp: any) =>
         aiKeywords.some((keyword) =>

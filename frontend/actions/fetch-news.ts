@@ -1,7 +1,7 @@
 "use server";
 
 export async function fetchNews(page: number) {
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}api/getNews?page=${page}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/news?page=${page}`;
   try {
     const response = await fetch(apiUrl);
     
