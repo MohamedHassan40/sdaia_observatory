@@ -33,7 +33,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ aiKeywords }) => {
     const fetchExperiences = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/experiences?page=${page}`
+          `${process.env.NEXT_PUBLIC_API_URL}/experience?page=${page}`
         );
         if (!res.ok) throw new Error('Failed to fetch experiences');
         const result = await res.json();

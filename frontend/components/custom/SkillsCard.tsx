@@ -40,7 +40,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ aiKeywords, loading }) => {
       setError(null);
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/skills?page=1}`
+          `${process.env.NEXT_PUBLIC_API_URL}/skills?page=1`
         );
         if (!res.ok) throw new Error("Failed to fetch skills");
         const data = await res.json();

@@ -169,7 +169,7 @@ export default function EmployeesPageClient() {
       setEmpError(null);
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/employees?page=${page}`
+          `${process.env.NEXT_PUBLIC_API_URL}/users?page=${page}`
         );
         if (!res.ok) throw new Error("Failed to fetch employees");
         const data = await res.json();
