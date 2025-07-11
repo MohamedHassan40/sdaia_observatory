@@ -49,6 +49,7 @@ export default function EmployeesPageClient() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [empLoading, setEmpLoading] = useState(true);
   const [empError, setEmpError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   // Fetch AI keywords from API
   const fetchAIKeywords = useCallback(async () => {
@@ -70,7 +71,9 @@ export default function EmployeesPageClient() {
   const fetchStats = useCallback(async () => {
     try {
       // Fetch courses
-      const coursesRes = await fetch("/api/getCourses?page=1");
+      const coursesRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/courses?page=${page}`
+        );
       const coursesData = await coursesRes.json();
       const aiRelatedCourses = coursesData?.results?.filter((course: any) =>
         aiKeywords.some((keyword) =>

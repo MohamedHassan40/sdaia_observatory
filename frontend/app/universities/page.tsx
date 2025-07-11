@@ -41,6 +41,7 @@ const UniversitiesPage = () => {
   const [universityCounts, setUniversityCounts] = useState<{ [key: string]: number }>({});
   const [eduLoading, setEduLoading] = useState(true);
   const [eduError, setEduError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     // Fetch all pages of OECD news
@@ -52,7 +53,9 @@ const UniversitiesPage = () => {
       let hasNext = true;
       try {
         while (hasNext) {
-          const res = await fetch(`/api/getNews?page=${page}`);
+          const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/news?page=${page}`
+        );
           if (!res.ok) throw new Error("Failed to fetch news");
           const data = await res.json();
           const pageNews = (data.results || data).filter((item: any) =>
@@ -78,7 +81,9 @@ const UniversitiesPage = () => {
       setEduLoading(true);
       setEduError(null);
       try {
-        const res = await fetch("/api/getEducation?page=1");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/education?page=${page}`
+        );
         if (!res.ok) throw new Error("Failed to fetch education");
         const data = await res.json();
         const education = data.results || data;

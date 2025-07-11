@@ -28,13 +28,16 @@ const CoursesCard: React.FC<CoursesCardProps> = ({ aiKeywords, loading }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchCourses = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/getCourses?page=1");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/courses?page=${page}`
+        );
         if (!res.ok) throw new Error("Failed to fetch courses");
         const data = await res.json();
         setCourses(data.results || data);
