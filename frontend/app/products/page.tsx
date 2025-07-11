@@ -13,7 +13,7 @@ const ProductsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/products?page=1`);
+        const res = await fetch(`/api/getProducts?page=1`);
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         let arr = data.results || data;

@@ -39,7 +39,7 @@ const CompaniesList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/companies?page=${page}`);
+        const response = await fetch(`/api/getCompanies?page=${page}`);
         if (!response.ok) {
           throw new Error("Something went wrong while fetching companies");
         }
